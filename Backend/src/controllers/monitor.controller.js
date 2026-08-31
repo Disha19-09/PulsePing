@@ -45,4 +45,15 @@ const getMonitors = asyncHandler(async (req, res) => {
     return res.status(200).json({message: "All Monitors ", monitors})
 })
 
-export { createMonitor, getMonitors}
+const deleteMonitor = asyncHandler(async (req, res)=>{
+    const {id} = req.params
+
+    const deletedMonitor = await Monitor.findOneAndDelete({_id: id , user:req.user._id})
+
+    if(!deletedMonitor) return res.status(404).json({message: "no matching Monitor found!!"})
+
+    return res.status(200).json({message: "Monitor deleted Successfully!!", deletedMonitor})
+
+})
+
+export { createMonitor, getMonitors, deleteMonitor}
