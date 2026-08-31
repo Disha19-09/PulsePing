@@ -35,4 +35,14 @@ const createMonitor = asyncHandler(async (req, res) => {
     }
 })
 
-export { createMonitor}
+const getMonitors = asyncHandler(async (req, res) => {
+    const userId = req.user._id
+
+    const monitors = await Monitor.find({user: userId})
+
+    if(!monitors.length) return res.status(200).json({message: "No Monitors!!"})
+    
+    return res.status(200).json({message: "All Monitors ", monitors})
+})
+
+export { createMonitor, getMonitors}
