@@ -56,4 +56,17 @@ const deleteMonitor = asyncHandler(async (req, res)=>{
 
 })
 
-export { createMonitor, getMonitors, deleteMonitor}
+const toggleMonitor = asyncHandler(async (req, res) => {
+    const {id} = req.params
+
+    const monitor = await Monitor.findOne({_id: id , user: req.user._id})
+
+    if(!monitor) return res.status(404).json({message: "No Monitor found"})
+    
+    monitor.tobeMonitored = !monitor.tobeMonitored
+    await monitor.save()
+
+    return res.status(200).json({message: "Monitor toggeled Successfully!!", monitor})
+})
+
+export { createMonitor, getMonitors, deleteMonitor, toggleMonitor}
