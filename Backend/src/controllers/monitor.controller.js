@@ -1,6 +1,7 @@
 import isURL from "validator/lib/isURL.js"
 import { Monitor } from "../models/monitor.model.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
+import { Checklog } from "../models/checklog.model.js"
 
 const createMonitor = asyncHandler(async (req, res) => {
     try {
@@ -69,4 +70,15 @@ const toggleMonitor = asyncHandler(async (req, res) => {
     return res.status(200).json({message: "Monitor toggeled Successfully!!", monitor})
 })
 
-export { createMonitor, getMonitors, deleteMonitor, toggleMonitor}
+const getMonitorHistory = asyncHandler( async (req, res) => {
+    const {id} = req.params
+    const monitor = await Monitor.findOne({_id: id , user: req.user._id})
+
+    if(!monitor) return res.status(404).json({message: "No Such Monitor found"})
+    
+    const  logs = await Checklog.find({monitorId: id}).sort({createdAt: -1}).limit(100)
+
+    return res.status(200).json({message: "History fetched Successfully!!", logs})
+})
+
+export { createMonitor, getMonitors, deleteMonitor, toggleMonitor, getMonitorHistory}
