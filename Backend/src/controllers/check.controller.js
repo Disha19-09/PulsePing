@@ -5,14 +5,14 @@ import { checkWithRetry } from "../utils/ping.js";
 
 const runChecks = asyncHandler(async(req, res) => {
     const monitors = await Monitor.find({ tobeMonitored: true })
-    for (const monitor of monitors) {
+    const promises = monitors.map(async(monitor) => {
         const result = await checkWithRetry(monitor.url) 
         await saveCheckResult(monitor, result)
-    }
-    
+    })
+    await Promise.allSettled(promises)
     return res.status(200).json({ 
         success: true,
-        message: "All checks processed sequentially", 
+        message: "All checks processed concurrently", 
         count: monitors.length 
     })
 })
