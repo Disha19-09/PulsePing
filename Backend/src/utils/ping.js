@@ -3,6 +3,9 @@ import axios from "axios"
 const validateStatus = (statusCode) => {
     return statusCode<500
 }
+
+const wait = (ms) => new Promise ((resolve) => setTimeout(resolve, ms))
+
 const pingUrl = async(url) => {
     const startTime = Date.now();
     try {
@@ -17,4 +20,16 @@ const pingUrl = async(url) => {
         return { status: "down", statusCode: null, responseTime }
     }
 }
-export {pingUrl}
+
+const checkWithRetry = async(url)=> {
+    const firstpingResult = await pingUrl(url)
+
+    if(firstpingResult.status === "up") return firstpingResult
+
+    await wait(5000)
+    
+    const retryPing = await pingUrl(url)
+
+    return retryPing
+}
+export {pingUrl , checkWithRetry}
