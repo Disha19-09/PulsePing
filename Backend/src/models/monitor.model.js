@@ -34,6 +34,14 @@ const monitorSchema = new Schema(
         },
         lastChecked: {
             type: Date
+        },
+        isAlerted: {
+            type: Boolean,
+            default: false
+        },
+        consecutiveFailures: {
+            type: Number,
+            default: 0
         }
     },
     {
