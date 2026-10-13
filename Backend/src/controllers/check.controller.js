@@ -22,6 +22,7 @@ const saveCheckResult = async (monitor, result) => {
         console.log(`[Check] "${monitor.name}" | Status: ${result.status} | Failures: ${monitor.consecutiveFailures} -> Incoming Alert State: ${monitor.isAlerted}`);
         
         if (result.status === 'down') {
+            if(monitor.consecutiveFailures === 0) monitor.isAlerted = false;
             monitor.consecutiveFailures += 1;
         } else if (result.status === 'up') {
             monitor.consecutiveFailures = 0;
@@ -46,7 +47,6 @@ const saveCheckResult = async (monitor, result) => {
                 await sendAlertEmail(monitor, "up");
                 monitor.isAlerted = false;
             } catch (emailError) {
-                // FIXED: Message now correctly specifies "up" email and status remains true
                 console.error(
                     `[Alert Failure] Failed to send "up" email for monitor ID: ${monitor._id} (${monitor.name || 'Unnamed'}). ` +
                     `Reason: ${emailError.message}. Code: ${emailError.code || 'N/A'}. ` +
@@ -71,7 +71,7 @@ const saveCheckResult = async (monitor, result) => {
         
         return { monitor, checklog };
     } catch (error) {
-        console.error(`Error saving check result for monitor ${monitor}:`, error.message);
+        console.error(`Error saving check result for monitor ID: ${monitor._id} (${monitor.name || 'Unnamed'}):`, error.message);
         return null;
     }
 };
