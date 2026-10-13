@@ -68,7 +68,7 @@ const sendAlertEmail = async (monitor, type) => {
             text: textBody
         });
 
-        console.log(`Alert email sent: ${info.messageId}`);
+        console.log(`[Email Success] Sent "${type}" alert email for monitor: "${monitor.name}"`);
         return info;
 
     } catch (error) {
