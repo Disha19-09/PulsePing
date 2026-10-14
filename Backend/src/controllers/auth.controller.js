@@ -72,9 +72,6 @@ const logoutUser = asyncHandler(async (req, res)=> {
                 refreshToken: 1
             }
         },
-        {
-            new: true
-        }
     )
 
     return res.status(200)
