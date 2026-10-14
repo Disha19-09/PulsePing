@@ -1,6 +1,13 @@
 import { asyncHandler } from "../utils/asyncHandler.js"
 import {User} from "../models/user.model.js"
 
+const isProduction = process.env.NODE_ENV === "production";
+const cookieOptions = {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+}
+
 const registerUser = asyncHandler(async(req, res) => {
     const {email, password, fullName} = req.body
 
@@ -49,17 +56,11 @@ const loginUser = asyncHandler(async(req, res) => {
     const loggedInUser = await User.findById(user._id).select(
         "-password -refreshToken"
     )
-
-    const options = {
-        httpOnly: true,
-        secure: false,
-        sameSite: 'lax'
-    }
     
     return res
     .status(200)
-    .cookie("accessToken", accessToken, options)
-    .cookie("refreshToken", refreshToken, options)
+    .cookie("accessToken", accessToken, cookieOptions)
+    .cookie("refreshToken", refreshToken, cookieOptions)
     .json({message: "User logged In Successfully", loggedInUser})
 })
 
@@ -76,15 +77,9 @@ const logoutUser = asyncHandler(async (req, res)=> {
         }
     )
 
-    const options = {
-        httpOnly: true,
-        secure: false,
-        sameSite: 'lax'
-    }
-
     return res.status(200)
-    .clearCookie("accessToken", options)
-    .clearCookie("refreshToken", options)
+    .clearCookie("accessToken", cookieOptions)
+    .clearCookie("refreshToken", cookieOptions)
     .json({message: "User logged out Successfully !!"})
 })
 
