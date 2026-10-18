@@ -80,4 +80,12 @@ const logoutUser = asyncHandler(async (req, res)=> {
     .json({message: "User logged out Successfully !!"})
 })
 
-export {registerUser, loginUser, logoutUser}
+const getCurrentUser = asyncHandler(async (req, res) => {
+    return res.status(200).json({
+        message: "Current user profile retrieved successfully.",
+        loggedInUser: req.user 
+    });
+});
+
+
+export {registerUser, loginUser, logoutUser, getCurrentUser}
