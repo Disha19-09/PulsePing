@@ -29,11 +29,16 @@ const handleShutdown = (signal) => {
     const safetyTimeout = setTimeout(() => {
         console.error(`[${new Date().toISOString()}] 🚨 Shutdown grace period expired! Forcing hard exit.`);
         process.exit(1);
-    }, 30000);
+    }, 26000);
 
     if (server) {
-        server.close(async () => {
-            console.log(`[${new Date().toISOString()}] 🛑 HTTP server fully drained.`);
+        server.close(async (err) => {
+            if (err) {
+                console.error(`[${new Date().toISOString()}] ❌ Error while closing HTTP server:`, err);
+                process.exit(1);
+            } else {
+                console.log(`[${new Date().toISOString()}] 🛑 HTTP server fully drained.`);
+            }
             try {
                 if (mongoose.connection.readyState !== 0) {
                     await mongoose.connection.close();
