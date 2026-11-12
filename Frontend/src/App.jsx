@@ -56,7 +56,7 @@ function App() {
             <p>Dashboard layout is currently pending construction. Your secure cookies are actively stored.</p>
           </div>
       ) : (
-        <Login />
+        <Login handleLoginSuccess = {(userData) => setUser(userData)} />
       )}
     </>
   );

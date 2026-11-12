@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import apiClient from "../api/axios.js";
 
-function Login() {
+function Login( {handleLoginSuccess}) {
     const [formdata , setformdata ] = useState({email:"" , password:""})
     const [errorMsg, setErrorMsg] = useState("");
     const [loading, setLoading] = useState(false);
-    const [userProfile, setUserProfile] = useState(null);
 
     const handleChange = (e) => {
         setformdata(prev => ({...prev, [e.target.name] : e.target.value}))
@@ -17,22 +16,13 @@ function Login() {
         setLoading(true);
         try {
             const response = await apiClient.post("/auth/login", formdata)
-            setUserProfile(response.data.loggedInUser);
+            handleLoginSuccess(response.data.loggedInUser);
         } catch (error) {
             const backendError = error.response?.data?.message || "An Unexpected error has occured"
             setErrorMsg(backendError);
         }finally{
             setLoading(false);
         }
-    }
-
-    if (userProfile) {
-        return (
-            <div>
-                <p>Logged In as, {userProfile.fullName}</p>
-                <p>Dashboard layout is currently pending construction. Your secure cookies are actively stored.</p>
-            </div>
-        )
     }
     return (
         <>
