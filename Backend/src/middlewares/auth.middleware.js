@@ -2,6 +2,11 @@ import { User } from "../models/user.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import jwt from "jsonwebtoken"
 
+const JWT_ERRORS = new Set([
+    "TokenExpiredError",
+    "JsonWebTokenError",
+    "NotBeforeError"
+]);
 
 const verifyJwt = asyncHandler( async (req, res, next) => {
     try {
@@ -18,7 +23,12 @@ const verifyJwt = asyncHandler( async (req, res, next) => {
         next()
 
     } catch (error) {
-        return res.status(401).json({message: "Invalid access token"})
+        if (JWT_ERRORS.has(error.name)) {
+            return res.status(401).json({ message: "Invalid access token" });
+        }
+
+        console.error("verifyJwt unexpected error:", error);
+        return res.status(500).json({ message: "Internal server error" });
     }
 })
 
