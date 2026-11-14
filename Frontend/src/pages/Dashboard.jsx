@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import apiClient from "../api/axios.js";
 
-export default function Dashboard() {
+export default function Dashboard( {handleSessionExpired}) {
   const [monitors, setMonitors] = useState([]);
   const [loadingMonitors, setLoadingMonitors] = useState(true);
   const [monitorsError, setMonitorsError] = useState(null);
@@ -14,6 +14,13 @@ export default function Dashboard() {
       const response = await apiClient.get("/monitors");
       setMonitors(response.data.monitors);
     } catch (err) {
+      console.error("Failed to fetch monitors:", err);
+
+      if (err.response?.status === 401) {
+        handleSessionExpired();
+        return;
+      }
+
       setMonitorsError("Could not load your monitors. Please try again.");
     } finally {
       setLoadingMonitors(false);

@@ -9,6 +9,11 @@ function App() {
   const [checkingAuth, setCheckingAuth] = useState(true)
   const [authError, setAuthError ] = useState(null)
 
+  const handleSessionExpired = () => {
+    setUser(null);
+    setAuthError(null);
+  };
+
   const checkSession = async () => {
     setCheckingAuth(true)
     setAuthError(null)
@@ -54,7 +59,7 @@ function App() {
       {user ? (
           <div>
             <p>Logged In as, {user.fullName}</p>
-            <Dashboard />
+            <Dashboard handleSessionExpired = {handleSessionExpired}/>
           </div>
       ) : (
         <Login handleLoginSuccess = {(userData) => setUser(userData)} />
