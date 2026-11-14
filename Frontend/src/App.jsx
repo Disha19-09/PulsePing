@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import './App.css'
 import Login from './pages/Login'
-import apiClient from './api/axios'
+import apiClient from './api/axios.js'
+import Dashboard from './pages/Dashboard'
 
 function App() {
   const [user , setUser] = useState(null)
@@ -53,7 +54,7 @@ function App() {
       {user ? (
           <div>
             <p>Logged In as, {user.fullName}</p>
-            <p>Dashboard layout is currently pending construction. Your secure cookies are actively stored.</p>
+            <Dashboard />
           </div>
       ) : (
         <Login handleLoginSuccess = {(userData) => setUser(userData)} />
