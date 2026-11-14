@@ -41,8 +41,6 @@ const getMonitors = asyncHandler(async (req, res) => {
 
     const monitors = await Monitor.find({user: userId})
 
-    if(!monitors.length) return res.status(200).json({message: "No Monitors!!"})
-    
     return res.status(200).json({message: "All Monitors ", monitors})
 })
 
