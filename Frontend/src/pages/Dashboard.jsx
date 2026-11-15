@@ -1,10 +1,15 @@
 import { useEffect, useState } from "react";
+import AddMonitorForm from "./AddMonitorForm.jsx";
 import apiClient from "../api/axios.js";
 
 export default function Dashboard( {handleSessionExpired}) {
   const [monitors, setMonitors] = useState([]);
   const [loadingMonitors, setLoadingMonitors] = useState(true);
   const [monitorsError, setMonitorsError] = useState(null);
+
+  const handleMonitorAdded = (newMonitor) => {
+    setMonitors((prev) => [...prev, newMonitor]);
+  };
 
   const fetchMonitors = async () => {
     setLoadingMonitors(true);
@@ -46,15 +51,21 @@ export default function Dashboard( {handleSessionExpired}) {
     );
   }
 
-  if (monitors.length === 0) {
-    return <p>No monitors yet.</p>;
-  }
-
   return (
-    <ul>
-      {monitors.map((monitor) => (
-        <li key={monitor._id}>{monitor.name}</li>
-      ))}
-    </ul>
+    <div>
+      <h1>Your Monitors</h1>
+      <AddMonitorForm onMonitorAdded={handleMonitorAdded} />
+
+      {monitors.length === 0 ? (
+        <p>No monitors yet.</p>
+      ) : (
+        <ul>
+          {monitors.map((monitor) => (
+            <li key={monitor._id}>{monitor.name}</li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
+
 }
