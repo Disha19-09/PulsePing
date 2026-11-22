@@ -6,13 +6,15 @@ export default function Dashboard( {handleSessionExpired}) {
   const [monitors, setMonitors] = useState([]);
   const [loadingMonitors, setLoadingMonitors] = useState(true);
   const [monitorsError, setMonitorsError] = useState(null);
-
-  
+  const [toggleError, setToggleError] = useState("");
+  const [togglingId, setTogglingId] = useState(null);
   const [deleteError, setDeleteError] = useState("");
   const [deletingId, setDeletingId] = useState(null);
 
+
   const handleMonitorAdded = (newMonitor) => {
     setDeleteError("")
+    setToggleError("")
     setMonitors((prev) => [...prev, newMonitor]);
   };
 
@@ -41,6 +43,27 @@ export default function Dashboard( {handleSessionExpired}) {
       setDeletingId(null);
     }
   };
+  const handleToggle = async (id) => {
+    setToggleError("");
+    setTogglingId(id);
+    try {
+      const response = await apiClient.patch(`/monitors/${id}/toggle`);
+      setMonitors((prev) =>
+        prev.map((m) => (m._id === id ? response.data.monitor : m))
+      );
+    } catch (err) {
+      if (err.response?.status === 401) {
+        handleSessionExpired();
+      } else if (!err.response || err.response.status >= 500) {
+        setToggleError("Unable to update monitor status right now. Please try again.");
+      } else {
+        setToggleError(err.response.data?.message || "Failed to toggle monitor.");
+      }
+    } finally {
+      setTogglingId(null);
+    }
+  };
+
 
   const fetchMonitors = async () => {
     setLoadingMonitors(true);
@@ -88,25 +111,46 @@ export default function Dashboard( {handleSessionExpired}) {
       <AddMonitorForm onMonitorAdded={handleMonitorAdded} />
       
       {deleteError && <p style={{ color: "red" }}>{deleteError}</p>}
+      {toggleError && <p style={{ color: "red" }}>{toggleError}</p>}
 
       {monitors.length === 0 ? (
         <p>No monitors yet.</p>
       ) : (
         <ul>
-          {monitors.map((monitor) => (
-            <li key={monitor._id}>
-              <span>{monitor.name} - {monitor.url}</span>
-              <button
-                type="button"
-                onClick={() => handleDelete(monitor._id)}
-                disabled={deletingId === monitor._id}
-              >
-                {deletingId === monitor._id ? "Deleting..." : "Delete"}
-              </button>
-            </li>
-          ))}
-        </ul>
+          {monitors.map((monitor) => {
+            const isRowBusy =
+              togglingId === monitor._id || deletingId === monitor._id;
 
+            return (
+              <li key={monitor._id}>
+                <span>
+                  {monitor.name} - {monitor.url} —{" "}
+                  {monitor.tobeMonitored ? "Monitored" : "Paused"}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => handleToggle(monitor._id)}
+                  disabled={isRowBusy}
+                >
+                  {togglingId === monitor._id
+                    ? monitor.tobeMonitored
+                      ? "Pausing..."
+                      : "Resuming..."
+                    : monitor.tobeMonitored
+                    ? "Pause"
+                    : "Resume"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDelete(monitor._id)}
+                  disabled={isRowBusy}
+                >
+                  {deletingId === monitor._id ? "Deleting..." : "Delete"}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
       )}
     </div>
   );
